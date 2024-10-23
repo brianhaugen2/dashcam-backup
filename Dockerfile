@@ -1,5 +1,6 @@
 FROM python:3.11
 LABEL authors="brian"
+USER root
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -13,6 +14,10 @@ WORKDIR /app
 COPY . /app/
 
 # Install dependencies
-COPY requirements.txt /app/
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install .
+
+RUN echo $HOME
+
+# Copy SSH keys
+RUN cp /home/brian/.ssh/id_rsa /root/.ssh/id_rsa
