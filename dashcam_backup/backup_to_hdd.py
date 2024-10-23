@@ -17,7 +17,9 @@ def load_catalog() -> pd.DataFrame:
     if os.path.exists(BACKUP_CATALOG_FP):
         cat = pd.read_csv(BACKUP_CATALOG_FP)
     else:
-        cat = pd.DataFrame()
+        cat = pd.DataFrame(
+            columns=["remote_path", "local_path", "size", "downloaded_at"]
+        )
     return cat
 
 
@@ -28,6 +30,7 @@ def download_min_file(
 ) -> Dict[str, Union[str, int, datetime]]:
     os.makedirs(os.path.dirname(outpath), exist_ok=True)
     subprocess.run(["scp", f"{COMMA_IP}:{inpath}", outpath])
+    print(f"Downloaded {inpath} to {outpath}")
     if os.path.exists(outpath):
         local_f_size = os.path.getsize(outpath)
         if local_f_size == f_size:
