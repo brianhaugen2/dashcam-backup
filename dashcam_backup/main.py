@@ -1,5 +1,6 @@
 # run from server
 import os
+import time
 import shutil
 import subprocess
 
@@ -10,7 +11,7 @@ from dashcam_backup.params import (
     COMMA_DATA_DIR,
     BACKUP_CATALOG_FP,
     COMMA_CATALOG_FP,
-    ARCHIVE_CATALOG_FP,
+    ARCHIVE_CATALOG_FP, BACKUP_DIR,
 )
 
 
@@ -30,6 +31,22 @@ def catalog_validation():
 
     # remove rows from catalog that do not exist or incomplete
     cat = cat.loc[cat["local_exists"] & cat["same_size"]]
+
+    # check for local files not in the catalog
+    missing = []
+    for root, _, files in os.walk(BACKUP_DIR):
+        for f in files:
+            fp = os.path.join(root, f)
+            if fp not in cat["local_path"].values:
+                missing.append({
+                    "remote_path": "missing",
+                    "local_path": fp,
+                    "size": "missing",
+                    "download_at": time.ctime()
+                })
+
+    # add missing file to catalog
+    cat = pd.concat([cat, pd.DataFrame(missing)])
 
     # save correct catalog
     cat.to_csv(BACKUP_CATALOG_FP, index=False)
@@ -55,10 +72,10 @@ if __name__ == "__main__":
 
         # have the device copy over the new files to the server
         # script send updated catalog back to server
-        subprocess.run(
-            ["ssh", COMMA_IP, "cd", "/dashcam-backup", "&", "python",
-             "dashcam_backup/backup_to_hdd.py"]
-        )
+        subprocess.run([
+            "ssh", COMMA_IP, "cd", "/data/media/0/dashcam-backup", "&",
+            "python", "dashcam_backup/backup_to_hdd.py"
+        ])
 
         # remove files from catalog that didn't copy correctly
         catalog_validation()
