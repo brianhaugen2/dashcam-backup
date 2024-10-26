@@ -15,6 +15,26 @@ from dashcam_backup.params import (
 )
 
 
+def check_for_missing_files(cat: pd.DataFrame) -> pd.DataFrame:
+    # check for local files not in the catalog
+    missing = []
+    for root, _, files in os.walk(BACKUP_DIR):
+        for f in files:
+            fp = os.path.join(root, f)
+            if fp not in cat["local_path"].values:
+                missing.append({
+                    "remote_path": "missing",
+                    "local_path": fp,
+                    "size": "missing",
+                    "download_at": time.ctime()
+                })
+
+    # add missing file to catalog
+    if missing:
+        cat = pd.concat([cat, pd.DataFrame(missing)])
+
+    return cat
+
 def catalog_validation():
     # read the catalog
     cat = pd.read_csv(BACKUP_CATALOG_FP)
@@ -33,23 +53,11 @@ def catalog_validation():
     cat = cat.loc[cat["local_exists"] & cat["same_size"]]
 
     # check for local files not in the catalog
-    missing = []
-    for root, _, files in os.walk(BACKUP_DIR):
-        for f in files:
-            fp = os.path.join(root, f)
-            if fp not in cat["local_path"].values:
-                missing.append({
-                    "remote_path": "missing",
-                    "local_path": fp,
-                    "size": "missing",
-                    "download_at": time.ctime()
-                })
+    cat = check_for_missing_files(cat)
 
-    # add missing file to catalog
-    cat = pd.concat([cat, pd.DataFrame(missing)])
-
-    # save correct catalog
+    # save the updated catalog
     cat.to_csv(BACKUP_CATALOG_FP, index=False)
+
 
 
 if __name__ == "__main__":
@@ -64,6 +72,11 @@ if __name__ == "__main__":
         if os.path.exists(BACKUP_CATALOG_FP):
             # archive the old catalog
             shutil.copy(BACKUP_CATALOG_FP, ARCHIVE_CATALOG_FP)
+
+            # check for missing files
+            cat = pd.read_csv(BACKUP_CATALOG_FP)
+            cat = check_for_missing_files(cat)
+            cat.to_csv(BACKUP_CATALOG_FP, index=False)
 
             # send the catalog to the device
             subprocess.run(

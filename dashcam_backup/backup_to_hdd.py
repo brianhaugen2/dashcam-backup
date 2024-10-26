@@ -19,6 +19,8 @@ def load_catalog() -> List[str]:
             lines = f.readlines()[1:]
         device_paths = [line.strip().split(",")[0] for line in lines]
     else:
+        with open(COMMA_CATALOG_FP, "w") as f:
+            f.writelines(["remote_path,local_path,size,downloaded_at"])
         device_paths = []
     return device_paths
 
@@ -28,7 +30,6 @@ def download_min_file(
     outpath: str,
     f_size: int,
 ) -> Optional[str]:
-    os.makedirs(os.path.dirname(outpath), exist_ok=True)
     subprocess.run(["scp", inpath, f"{SERVER_LAPTOP_IP}:{outpath}"])
     print(f"Downloaded {inpath} to {outpath}")
     if os.path.exists(outpath):
@@ -41,24 +42,28 @@ def download_min_file(
 def main():
     dev_paths = load_catalog()
 
-    new_cat = []
+    files_to_download = []
     for root, _, files in os.walk(COMMA_DATA_DIR):
         for f in files:
             src_fp = os.path.join(root, f)
             if src_fp not in dev_paths:
-                tgt_fp = src_fp.replace(COMMA_DATA_DIR, BACKUP_DIR)
-                cat_entry = download_min_file(
-                    src_fp, tgt_fp, os.path.getsize(src_fp)
-                )
-                new_cat.append(cat_entry)
+                files_to_download.append(src_fp)
+
+    dirs_to_create = set([os.path.dirname(f) for f in files_to_download])
+    for d in dirs_to_create:
+        subprocess.run(["ssh", SERVER_LAPTOP_IP, f"mkdir -p {d}"])
+
+    new_cat = []
+    for src_fp in files_to_download:
+        tgt_fp = src_fp.replace(COMMA_DATA_DIR, BACKUP_DIR)
+        cat_entry = download_min_file(
+            src_fp, tgt_fp, os.path.getsize(src_fp)
+        )
+        new_cat.append(cat_entry)
 
     if new_cat:
-        if not os.path.exists(COMMA_CATALOG_FP):
-            with open(COMMA_CATALOG_FP, "w") as f:
-                f.writelines(["remote_path,local_path,size,downloaded_at"])
         with open(COMMA_CATALOG_FP, "a") as f:
             f.writelines(new_cat)
-        new_cat.to_csv(BACKUP_CATALOG_FP, index=False)
 
     subprocess.run(
         ["scp", COMMA_CATALOG_FP, f"{SERVER_LAPTOP_IP}:{BACKUP_CATALOG_FP}"]
