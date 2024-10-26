@@ -51,6 +51,7 @@ def main():
 
     dirs_to_create = set([os.path.dirname(f) for f in files_to_download])
     for d in dirs_to_create:
+        d = d.replace(COMMA_DATA_DIR, BACKUP_DIR)
         subprocess.run(["ssh", SERVER_LAPTOP_IP, f"mkdir -p {d}"])
 
     new_cat = []
