@@ -50,9 +50,16 @@ def main():
                 files_to_download.append(src_fp)
 
     dirs_to_create = set([os.path.dirname(f) for f in files_to_download])
+    existing_dirs = subprocess.run(
+        ["ssh", SERVER_LAPTOP_IP, f"ls {BACKUP_DIR}"],
+        capture_output=True,
+        text=True,
+    ).stdout.split("\n")
+    existing_dirs = [os.path.join(BACKUP_DIR, d) for d in existing_dirs]
     for d in dirs_to_create:
         d = d.replace(COMMA_DATA_DIR, BACKUP_DIR)
-        subprocess.run(["ssh", SERVER_LAPTOP_IP, f"mkdir -p {d}"])
+        if d not in existing_dirs:
+            subprocess.run(["ssh", SERVER_LAPTOP_IP, f"mkdir -p {d}"])
 
     new_cat = []
     for src_fp in files_to_download:
