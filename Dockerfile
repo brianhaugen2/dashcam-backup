@@ -10,16 +10,13 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /app
 WORKDIR /app
 
-# Copy project
-COPY . /app/
+# Create user
+RUN useradd -ms /bin/bash brian
+USER brian
 
 # Install dependencies
 RUN pip install --upgrade pip
 RUN pip install .
 
-# Create user
-RUN useradd -ms /bin/bash brian
-USER brian
-
-# Copy SSH keys
-RUN cp /home/brian/.ssh/id_rsa /home/brian/.ssh/id_rsa
+# Copy project
+COPY . /app/

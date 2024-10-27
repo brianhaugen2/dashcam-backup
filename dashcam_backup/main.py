@@ -3,7 +3,6 @@ import os
 import time
 import shutil
 import subprocess
-
 import pandas as pd
 
 from dashcam_backup.params import (
@@ -60,8 +59,7 @@ def catalog_validation():
     cat.to_csv(BACKUP_CATALOG_FP, index=False)
 
 
-
-if __name__ == "__main__":
+def main():
     resp = subprocess.run(
         ["ssh", COMMA_IP, "ls", COMMA_DATA_DIR],
         capture_output=True,
@@ -88,3 +86,10 @@ if __name__ == "__main__":
 
         # remove files from catalog that didn't copy correctly
         catalog_validation()
+
+
+if __name__ == "__main__":
+    while True:
+        main()
+        # sleep for 5 minutes
+        time.sleep(300)
