@@ -17,7 +17,9 @@ COPY . /app/
 RUN pip install --upgrade pip
 RUN pip install .
 
-RUN echo $HOME
+# Create user
+RUN useradd -ms /bin/bash brian
+USER brian
 
 # Copy SSH keys
-RUN cp /home/brian/.ssh/id_rsa /root/.ssh/id_rsa
+RUN cp /home/brian/.ssh/id_rsa /home/brian/.ssh/id_rsa
