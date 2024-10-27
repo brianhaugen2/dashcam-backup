@@ -10,13 +10,12 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /app
 WORKDIR /app
 
+# Copy project
+COPY . /app/
 
 # Install dependencies
 RUN pip install --upgrade pip
 RUN pip install .
-
-# Copy project
-COPY . /app/
 
 # Create user
 RUN useradd -ms /bin/bash brian
