@@ -10,7 +10,9 @@ from dashcam_backup.params import (
     COMMA_DATA_DIR,
     BACKUP_CATALOG_FP,
     COMMA_CATALOG_FP,
-    ARCHIVE_CATALOG_FP, BACKUP_DIR,
+    ARCHIVE_CATALOG_FP,
+    BACKUP_DIR,
+    WANTED_COMMA_FILES,
 )
 
 
@@ -20,7 +22,7 @@ def check_for_missing_files(cat: pd.DataFrame) -> pd.DataFrame:
     for root, _, files in os.walk(BACKUP_DIR):
         for f in files:
             fp = os.path.join(root, f)
-            if fp not in cat["local_path"].values:
+            if fp not in cat["local_path"].values and f in WANTED_COMMA_FILES:
                 missing.append({
                     "remote_path": "missing",
                     "local_path": fp,
