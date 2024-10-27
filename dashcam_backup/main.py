@@ -75,7 +75,8 @@ def main():
         # update code on the device before running the backup
         subprocess.run([
             "ssh", COMMA_IP,
-            "cd /data/media/0/dashcam-backup && git pull && pip install ."
+            "cd /data/media/0/dashcam-backup && git pull "
+            "&& pip install . --no-deps"
         ])
 
         if os.path.exists(BACKUP_CATALOG_FP):
