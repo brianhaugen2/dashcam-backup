@@ -70,14 +70,14 @@ def main():
     device_online = len(resp.stdout) > 0
 
     if device_online:
+        # update code on the device before running the backup
+        subprocess.run([
+            "ssh", COMMA_IP, "cd /data/media/0/dashcam-backup && git pull"
+        ])
+
         if os.path.exists(BACKUP_CATALOG_FP):
             # archive the old catalog
             shutil.copy(BACKUP_CATALOG_FP, ARCHIVE_CATALOG_FP)
-
-            # update code on the device before running the backup
-            subprocess.run([
-                "ssh", COMMA_IP, "cd /data/media/0/dashcam-backup && git pull"
-            ])
 
             # send the catalog to the device
             subprocess.run(
