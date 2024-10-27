@@ -46,7 +46,7 @@ def catalog_validation():
     # check if the local size is similar to the remote size
     cat["local_size"] = cat["local_path"].apply(os.path.getsize)
     cat["same_size"] = cat.apply(
-        lambda x: (abs(x["local_size"] - int(x["size"])) < 1000)
+        lambda x: x["local_size"] == int(x["size"])
         if x["size"] != "missing" else False,
         axis=1
     )

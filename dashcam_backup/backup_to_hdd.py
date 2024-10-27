@@ -2,7 +2,7 @@
 import os
 import subprocess
 import time
-from typing import List, Optional
+from typing import List
 
 from dashcam_backup.params import (
     SERVER_LAPTOP_IP,

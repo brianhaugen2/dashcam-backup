@@ -5,7 +5,8 @@ COMMA_DATA_DIR = "/data/media/0/realdata/"
 COMMA_IP = "comma@192.168.10.154"
 COMMA_CATALOG_FP = "/tmp/catalog.csv"
 SERVER_LAPTOP_IP = "brian@192.168.10.174"
-BACKUP_DIR = "/media/brian/7ef70690-cfa7-4aea-9ae2-cb402f50dec0/dashcam_backup/"
+BACKUP_DIR = ("/media/brian/7ef70690-cfa7-4aea-9ae2-cb402f50dec0/"
+              "dashcam_backup/raw_data/")
 WANTED_COMMA_FILES = [
     "dcamera.hevc",
     "ecamera.hevc",
