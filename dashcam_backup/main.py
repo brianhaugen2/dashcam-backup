@@ -26,7 +26,7 @@ def check_for_missing_files(cat: pd.DataFrame) -> pd.DataFrame:
                     "remote_path": "missing",
                     "local_path": fp,
                     "size": "missing",
-                    "download_at": time.ctime()
+                    "downloaded_at": time.ctime()
                 })
 
     # add missing file to catalog
@@ -45,7 +45,8 @@ def catalog_validation():
     # check if the local size is similar to the remote size
     cat["local_size"] = cat["local_path"].apply(os.path.getsize)
     cat["same_size"] = cat.apply(
-        lambda x: (abs(x["local_size"] - x["size"]) < 1000),
+        lambda x: (abs(x["local_size"] - int(x["size"])) < 1000)
+        if x["size"] != "missing" else False,
         axis=1
     )
 
@@ -73,11 +74,6 @@ if __name__ == "__main__":
             # archive the old catalog
             shutil.copy(BACKUP_CATALOG_FP, ARCHIVE_CATALOG_FP)
 
-            # check for missing files
-            cat = pd.read_csv(BACKUP_CATALOG_FP)
-            cat = check_for_missing_files(cat)
-            cat.to_csv(BACKUP_CATALOG_FP, index=False)
-
             # send the catalog to the device
             subprocess.run(
                 ["scp", BACKUP_CATALOG_FP, f"{COMMA_IP}:{COMMA_CATALOG_FP}"]
@@ -86,8 +82,8 @@ if __name__ == "__main__":
         # have the device copy over the new files to the server
         # script send updated catalog back to server
         subprocess.run([
-            "ssh", COMMA_IP, "cd", "/data/media/0/dashcam-backup", "&",
-            "python", "dashcam_backup/backup_to_hdd.py"
+            "ssh", COMMA_IP,
+            "bash /data/media/0/dashcam-backup/dashcam_backup/startup.sh"
         ])
 
         # remove files from catalog that didn't copy correctly

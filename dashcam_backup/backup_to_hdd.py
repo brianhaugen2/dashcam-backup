@@ -20,7 +20,7 @@ def load_catalog() -> List[str]:
         device_paths = [line.strip().split(",")[0] for line in lines]
     else:
         with open(COMMA_CATALOG_FP, "w") as f:
-            f.writelines(["remote_path,local_path,size,downloaded_at"])
+            f.writelines(["remote_path,local_path,size,downloaded_at\n"])
         device_paths = []
     return device_paths
 
@@ -28,15 +28,11 @@ def load_catalog() -> List[str]:
 def download_min_file(
     inpath: str,
     outpath: str,
-    f_size: int,
-) -> Optional[str]:
+) -> str:
     subprocess.run(["scp", inpath, f"{SERVER_LAPTOP_IP}:{outpath}"])
-    print(f"Downloaded {inpath} to {outpath}")
-    if os.path.exists(outpath):
-        local_f_size = os.path.getsize(outpath)
-        if local_f_size == f_size:
-            cat_entry = [inpath, outpath, f_size, time.ctime()]
-            return ",".join(cat_entry)
+    f_size = os.path.getsize(outpath)
+    cat_entry = [inpath, outpath, str(f_size), time.ctime()]
+    return ",".join(cat_entry) + "\n"
 
 
 def main():
@@ -64,9 +60,7 @@ def main():
     new_cat = []
     for src_fp in files_to_download:
         tgt_fp = src_fp.replace(COMMA_DATA_DIR, BACKUP_DIR)
-        cat_entry = download_min_file(
-            src_fp, tgt_fp, os.path.getsize(src_fp)
-        )
+        cat_entry = download_min_file(src_fp, tgt_fp)
         new_cat.append(cat_entry)
 
     if new_cat:
