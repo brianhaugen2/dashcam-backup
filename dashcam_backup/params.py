@@ -16,4 +16,4 @@ WANTED_COMMA_FILES = [
 ]
 BACKUP_CATALOG_FP = os.path.join(BACKUP_DIR, "catalog.csv")
 ARCHIVE_CATALOG_FP = os.path.join(BACKUP_DIR, "catalog_archive.csv")
-RAW_DATA_DIR = os.path.join(BACKUP_DIR, "raw_data")
+RAW_DATA_DIR = os.path.join(BACKUP_DIR, "raw_data/")
