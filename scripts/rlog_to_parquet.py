@@ -5,8 +5,8 @@ from tools.lib.logreader import LogReader
 
 
 if __name__ == "__main__":
-    for root, dirs, in os.walk("/media/brian/7ef70690-cfa7-4aea-9ae2-cb402f50dec0/dashcam_backup/raw_data"):
-        for d in dirs:
+    for root, dirs, _ in os.walk("/media/brian/7ef70690-cfa7-4aea-9ae2-cb402f50dec0/dashcam_backup/raw_data"):
+        for d in sorted(dirs):
             raw_fp = os.path.join(root, d, "rlog")
             conv_fp = raw_fp.replace("raw_data", "converted_data").replace("rlog", "rlog.pkl")
             if not os.path.exists(conv_fp) and os.path.exists(raw_fp):
