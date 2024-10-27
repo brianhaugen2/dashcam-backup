@@ -8,8 +8,8 @@ from dashcam_backup.params import (
     SERVER_LAPTOP_IP,
     COMMA_DATA_DIR,
     COMMA_CATALOG_FP,
-    BACKUP_DIR,
     BACKUP_CATALOG_FP,
+    RAW_DATA_DIR,
 )
 
 
@@ -47,19 +47,19 @@ def main():
 
     dirs_to_create = set([os.path.dirname(f) for f in files_to_download])
     existing_dirs = subprocess.run(
-        ["ssh", SERVER_LAPTOP_IP, f"ls {BACKUP_DIR}"],
+        ["ssh", SERVER_LAPTOP_IP, f"ls {RAW_DATA_DIR}"],
         capture_output=True,
         text=True,
     ).stdout.split("\n")
-    existing_dirs = [os.path.join(BACKUP_DIR, d) for d in existing_dirs]
+    existing_dirs = [os.path.join(RAW_DATA_DIR, d) for d in existing_dirs]
     for d in dirs_to_create:
-        d = d.replace(COMMA_DATA_DIR, BACKUP_DIR)
+        d = d.replace(COMMA_DATA_DIR, RAW_DATA_DIR)
         if d not in existing_dirs:
             subprocess.run(["ssh", SERVER_LAPTOP_IP, f"mkdir -p {d}"])
 
     new_cat = []
     for src_fp in files_to_download:
-        tgt_fp = src_fp.replace(COMMA_DATA_DIR, BACKUP_DIR)
+        tgt_fp = src_fp.replace(COMMA_DATA_DIR, RAW_DATA_DIR)
         cat_entry = download_min_file(src_fp, tgt_fp)
         new_cat.append(cat_entry)
 

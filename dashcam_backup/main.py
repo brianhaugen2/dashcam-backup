@@ -11,7 +11,7 @@ from dashcam_backup.params import (
     BACKUP_CATALOG_FP,
     COMMA_CATALOG_FP,
     ARCHIVE_CATALOG_FP,
-    BACKUP_DIR,
+    RAW_DATA_DIR,
     WANTED_COMMA_FILES,
 )
 
@@ -19,7 +19,7 @@ from dashcam_backup.params import (
 def check_for_missing_files(cat: pd.DataFrame) -> pd.DataFrame:
     # check for local files not in the catalog
     missing = []
-    for root, _, files in os.walk(BACKUP_DIR):
+    for root, _, files in os.walk(RAW_DATA_DIR):
         for f in files:
             fp = os.path.join(root, f)
             if fp not in cat["local_path"].values and f in WANTED_COMMA_FILES:
