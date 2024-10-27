@@ -12,7 +12,6 @@ WORKDIR /app
 
 # Create user
 RUN useradd -ms /bin/bash brian
-USER brian
 
 # Install dependencies
 RUN pip install --upgrade pip
@@ -20,3 +19,6 @@ RUN pip install .
 
 # Copy project
 COPY . /app/
+
+# Change to user
+USER brian
