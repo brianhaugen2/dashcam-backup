@@ -15,7 +15,7 @@ VERSION_FILE = os.path.join(THIS_DIR, "VERSION")
 if os.path.exists(VERSION_FILE):
     VERSION = open(VERSION_FILE, "r").read()
 
-REQUIRES_PYTHON = ">=3.11"
+REQUIRES_PYTHON = ">=3.8"
 
 # requirements files
 REQS_FILE = "./requirements.txt"
