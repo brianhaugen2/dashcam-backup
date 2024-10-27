@@ -20,6 +20,9 @@ if __name__ == "__main__":
                         out.append(dict_msg)
                     except UnicodeDecodeError:
                         continue
+                    except RuntimeError:
+                        continue
 
-                with open(conv_fp, "wb") as f:
-                    pkl.dump(out, f)
+                if len(out) > 0:
+                    with open(conv_fp, "wb") as f:
+                        pkl.dump(out, f)
