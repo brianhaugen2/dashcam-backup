@@ -30,7 +30,7 @@ def download_min_file(
     outpath: str,
 ) -> str:
     subprocess.run(["scp", inpath, f"{SERVER_LAPTOP_IP}:{outpath}"])
-    f_size = os.path.getsize(outpath)
+    f_size = os.path.getsize(inpath)
     cat_entry = [inpath, outpath, str(f_size), time.ctime()]
     return ",".join(cat_entry) + "\n"
 
