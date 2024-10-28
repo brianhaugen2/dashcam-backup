@@ -59,9 +59,10 @@ def main():
 
     new_cat = []
     for src_fp in files_to_download:
-        tgt_fp = src_fp.replace(COMMA_DATA_DIR, RAW_DATA_DIR)
-        cat_entry = download_min_file(src_fp, tgt_fp)
-        new_cat.append(cat_entry)
+        if src_fp not in dev_paths:
+            tgt_fp = src_fp.replace(COMMA_DATA_DIR, RAW_DATA_DIR)
+            cat_entry = download_min_file(src_fp, tgt_fp)
+            new_cat.append(cat_entry)
 
     if new_cat:
         with open(COMMA_CATALOG_FP, "a") as f:
