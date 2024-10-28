@@ -14,8 +14,8 @@ from dashcam_backup.params import (
 
 
 def load_catalog() -> List[str]:
-    if os.path.exists(BACKUP_CATALOG_FP):
-        with open(BACKUP_CATALOG_FP, "r") as f:
+    if os.path.exists(COMMA_CATALOG_FP):
+        with open(COMMA_CATALOG_FP, "r") as f:
             lines = f.readlines()[1:]
         device_paths = [line.strip().split(",")[0] for line in lines]
     else:
