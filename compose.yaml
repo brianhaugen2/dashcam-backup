@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    image: dashcam_backup:latest
+    container_name: dashcam_backup
+    volumes:
+      - /media:/media
+      - /home/brian/.ssh:/root/.ssh
+    command: python /app/dashcam_backup/backup_to_hdd.py
+    restart: unless-stopped
