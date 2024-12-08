@@ -1,41 +1,20 @@
 # Run from device
-import os
 import time
-import logging
 import subprocess
 
 from dashcam_backup.params import (
-    SERVER_LAPTOP_IP,
     COMMA_IP,
     COMMA_DATA_DIR,
-    BACKUP_DIR,
     RAW_DATA_DIR,
+    BACKUP_LOG_FN
+)
+from dashcam_backup.utils import (
+    setup_logging
 )
 
 
-def setup_logging():
-    logging.basicConfig(
-        filename = os.path.join(BACKUP_DIR, "rsync_backup.log"),
-        level = logging.INFO,
-        format= '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    # set up logging to console
-    console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger('').addHandler(console)
-
-    logger = logging.getLogger(__name__)
-
-    return logger
-
-
 def main():
-    logger = setup_logging()
+    logger = setup_logging(BACKUP_LOG_FN)
 
     i = 1
     while True:
@@ -59,6 +38,6 @@ def main():
 
         i += 1
 
+
 if __name__ == "__main__":
     main()
-

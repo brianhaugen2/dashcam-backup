@@ -36,8 +36,3 @@ COPY . /app/
 # Install dependencies
 RUN pip install --upgrade pip
 RUN pip install .
-
-# Create user
-#RUN useradd -ms /bin/bash brian
-#RUN usermod -aG sudo brian
-#USER brian

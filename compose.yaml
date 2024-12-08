@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  app:
+  backup:
     build: .
     image: dashcam_backup:latest
     container_name: dashcam_backup
