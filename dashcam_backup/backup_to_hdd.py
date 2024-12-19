@@ -6,7 +6,8 @@ from dashcam_backup.params import (
     COMMA_IP,
     COMMA_DATA_DIR,
     RAW_DATA_DIR,
-    BACKUP_LOG_FN
+    BACKUP_LOG_FN,
+    T_DELAY
 )
 from dashcam_backup.utils import (
     setup_logging
@@ -35,9 +36,9 @@ def main():
         except Exception as e:
             logger.info(e)
 
-        if (time.time() - start_t) < 60:
-            logger.info(f"Sleeping for {60 - time.time() + start_t} sec")
-            time.sleep(60 - time.time() + start_t)
+        if (time.time() - start_t) < T_DELAY:
+            logger.info(f"Sleeping for {T_DELAY - time.time() + start_t} sec")
+            time.sleep(T_DELAY - time.time() + start_t)
 
         i += 1
 
