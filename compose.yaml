@@ -8,5 +8,6 @@ services:
     volumes:
       - /media:/media
       - /home/brian/.ssh:/root/.ssh
+      - /tmp:/tmp
     command: python /app/dashcam_backup/backup_to_hdd.py
     restart: unless-stopped

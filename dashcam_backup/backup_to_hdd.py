@@ -5,9 +5,11 @@ import subprocess
 from dashcam_backup.params import (
     COMMA_IP,
     COMMA_DATA_DIR,
+    TEMP_BACKUP_DIR,
     RAW_DATA_DIR,
     BACKUP_LOG_FN,
-    T_DELAY
+    T_DELAY,
+    TRANSFER_LOCK,
 )
 from dashcam_backup.utils import (
     setup_logging
@@ -22,6 +24,11 @@ def main():
         logger.info(f"Loop {i}")
         start_t = time.time()
         try:
+            # Create lock file to prevent conversion from starting
+            with open(TRANSFER_LOCK, "w") as f:
+                f.write("1")
+
+            # Transfer data
             result = subprocess.run(
                 ["rsync", f"{COMMA_IP}:{COMMA_DATA_DIR}/*", f"{RAW_DATA_DIR}", "-av"],
                 stdout=subprocess.PIPE,
@@ -33,9 +40,13 @@ def main():
             logger.info(result.stdout)
             if result.stderr:
                 logger.info(result.stderr)
+
+            # Remove lock file
+            subprocess.run(["rm", TRANSFER_LOCK])
         except Exception as e:
             logger.info(e)
 
+        # Sleep for T_DELAY sec
         if (time.time() - start_t) < T_DELAY:
             logger.info(f"Sleeping for {T_DELAY - time.time() + start_t} sec")
             time.sleep(T_DELAY - time.time() + start_t)
