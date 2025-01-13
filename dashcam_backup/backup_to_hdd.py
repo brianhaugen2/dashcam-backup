@@ -1,11 +1,10 @@
-# Run from device
+import os
 import time
 import subprocess
 
 from dashcam_backup.params import (
     COMMA_IP,
     COMMA_DATA_DIR,
-    TEMP_BACKUP_DIR,
     RAW_DATA_DIR,
     BACKUP_LOG_FN,
     T_DELAY,
@@ -24,25 +23,36 @@ def main():
         logger.info(f"Loop {i}")
         start_t = time.time()
         try:
-            # Create lock file to prevent conversion from starting
-            with open(TRANSFER_LOCK, "w") as f:
-                f.write("1")
-
-            # Transfer data
+            # check if device is online
             result = subprocess.run(
-                ["rsync", f"{COMMA_IP}:{COMMA_DATA_DIR}/*", f"{RAW_DATA_DIR}", "-av"],
+                ["ssh", COMMA_IP, "ls"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                check=True
             )
 
-            logger.info(result.stdout)
-            if result.stderr:
-                logger.info(result.stderr)
+            # if device is online, transfer data
+            if result.returncode == 0:
+                # Create lock file to prevent conversion from starting
+                with open(TRANSFER_LOCK, "w") as f:
+                    f.write("1")
+
+                # Transfer data
+                result = subprocess.run(
+                    ["rsync", f"{COMMA_IP}:{COMMA_DATA_DIR}/*", f"{RAW_DATA_DIR}", "-av"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    check=True
+                )
+
+                logger.info(result.stdout)
+                if result.stderr:
+                    logger.info(result.stderr)
 
             # Remove lock file
-            subprocess.run(["rm", TRANSFER_LOCK])
+            if os.path.exists(TRANSFER_LOCK):
+                subprocess.run(["rm", TRANSFER_LOCK])
         except Exception as e:
             logger.info(e)
 
