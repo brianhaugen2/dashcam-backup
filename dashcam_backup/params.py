@@ -4,7 +4,7 @@ import os
 COMMA_DATA_DIR = "/data/media/0/realdata/"
 COMMA_IP = "comma@192.168.10.155"
 COMMA_CATALOG_FP = "/tmp/catalog.csv"
-SERVER_LAPTOP_IP = "brian@192.168.10.151"
+SERVER_LAPTOP_IP = "brian@192.168.10.152"
 TEMP_BACKUP_DIR = "/tmp/dashcam_tmp_backup/"
 BACKUP_DIR = "/media/brian/ac8adcce-128e-4090-998e-40f2f6da43f1/dashcam_backup/"
 WANTED_COMMA_FILES = [
