@@ -2,9 +2,9 @@ import os
 
 
 COMMA_DATA_DIR = "/data/media/0/realdata/"
-COMMA_IP = "comma@192.168.10.155"
+COMMA_IP = "comma@192.168.10.154"
 COMMA_CATALOG_FP = "/tmp/catalog.csv"
-SERVER_LAPTOP_IP = "brian@192.168.10.152"
+SERVER_LAPTOP_IP = "brian@192.168.10.11"
 WANTED_COMMA_FILES = [
     "dcamera.hevc",
     "ecamera.hevc",
