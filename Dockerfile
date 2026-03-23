@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
     git \
-    rsync \ 
+    rsync \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Miniconda
@@ -23,8 +23,10 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
 # Add Miniconda to PATH
 ENV PATH="/opt/miniconda/bin:$PATH"
 
-# Update conda and install any dependencies you want (optional)
-RUN conda update -y conda
+# Accept conda TOS and update
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r && \
+    conda update -y conda
 
 # Set work directory
 RUN mkdir /app
