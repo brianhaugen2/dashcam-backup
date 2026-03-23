@@ -9,6 +9,7 @@ from dashcam_backup.params import (
     BACKUP_LOG_FN,
     T_DELAY,
     TRANSFER_LOCK,
+    SSH_TIMEOUT,
 )
 from dashcam_backup.utils import (
     setup_logging
@@ -25,7 +26,11 @@ def main():
         try:
             # check if device is online
             result = subprocess.run(
-                ["ssh", COMMA_IP, "ls"],
+                ["ssh",
+                 "-o", f"ConnectTimeout={SSH_TIMEOUT}",
+                 "-o", "StrictHostKeyChecking=no",
+                 "-o", "BatchMode=yes",
+                 COMMA_IP, "ls"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
@@ -33,33 +38,48 @@ def main():
 
             # if device is online, transfer data
             if result.returncode == 0:
+                logger.info("Device online, starting transfer")
                 # Create lock file to prevent conversion from starting
                 with open(TRANSFER_LOCK, "w") as f:
                     f.write("1")
 
-                # Transfer data
-                result = subprocess.run(
-                    ["rsync", f"{COMMA_IP}:{COMMA_DATA_DIR}/*", f"{RAW_DATA_DIR}", "-av"],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True,
-                    check=True
-                )
+                try:
+                    # Transfer data
+                    result = subprocess.run(
+                        ["rsync",
+                         "-e", f"ssh -o ConnectTimeout={SSH_TIMEOUT} -o StrictHostKeyChecking=no",
+                         f"{COMMA_IP}:{COMMA_DATA_DIR}*",
+                         RAW_DATA_DIR, "-av", "--timeout=120"],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                    )
 
-                logger.info(result.stdout)
-                if result.stderr:
-                    logger.info(result.stderr)
+                    if result.returncode == 0:
+                        logger.info("Transfer complete")
+                        if result.stdout:
+                            logger.info(result.stdout)
+                    else:
+                        logger.warning(f"rsync failed (exit {result.returncode}): {result.stderr.strip()}")
+                finally:
+                    # Always clean up lock file, even if rsync fails
+                    if os.path.exists(TRANSFER_LOCK):
+                        os.remove(TRANSFER_LOCK)
+            else:
+                logger.info(f"Device offline (ssh exit {result.returncode})")
 
-            # Remove lock file
-            if os.path.exists(TRANSFER_LOCK):
-                subprocess.run(["rm", TRANSFER_LOCK])
         except Exception as e:
-            logger.info(e)
+            logger.error(f"Unexpected error: {e}")
+            # Clean up lock file on unexpected errors too
+            if os.path.exists(TRANSFER_LOCK):
+                os.remove(TRANSFER_LOCK)
 
         # Sleep for T_DELAY sec
-        if (time.time() - start_t) < T_DELAY:
-            logger.info(f"Sleeping for {T_DELAY - time.time() + start_t} sec")
-            time.sleep(T_DELAY - time.time() + start_t)
+        elapsed = time.time() - start_t
+        if elapsed < T_DELAY:
+            sleep_time = T_DELAY - elapsed
+            logger.info(f"Sleeping for {sleep_time:.0f} sec")
+            time.sleep(sleep_time)
 
         i += 1
 
