@@ -3,6 +3,7 @@ services:
     build: .
     image: dashcam_backup:latest
     container_name: dashcam_backup
+    network_mode: host
     volumes:
       - /media:/media
       - /home/brian/.ssh:/root/.ssh

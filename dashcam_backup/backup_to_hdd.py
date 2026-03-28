@@ -15,6 +15,14 @@ from dashcam_backup.utils import (
     setup_logging
 )
 
+SSH_OPTS = [
+    "-o", f"ConnectTimeout={SSH_TIMEOUT}",
+    "-o", "StrictHostKeyChecking=no",
+    "-o", "BatchMode=yes",
+    "-o", "ServerAliveInterval=30",
+    "-o", "ServerAliveCountMax=3",
+]
+
 
 def main():
     logger = setup_logging(BACKUP_LOG_FN)
@@ -26,11 +34,7 @@ def main():
         try:
             # check if device is online
             result = subprocess.run(
-                ["ssh",
-                 "-o", f"ConnectTimeout={SSH_TIMEOUT}",
-                 "-o", "StrictHostKeyChecking=no",
-                 "-o", "BatchMode=yes",
-                 COMMA_IP, "ls"],
+                ["ssh", *SSH_OPTS, COMMA_IP, "ls"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
@@ -44,12 +48,14 @@ def main():
                     f.write("1")
 
                 try:
+                    ssh_cmd = f"ssh -o ConnectTimeout={SSH_TIMEOUT} -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ServerAliveCountMax=3"
                     # Transfer data
                     result = subprocess.run(
                         ["rsync",
-                         "-e", f"ssh -o ConnectTimeout={SSH_TIMEOUT} -o StrictHostKeyChecking=no",
-                         f"{COMMA_IP}:{COMMA_DATA_DIR}*",
-                         RAW_DATA_DIR, "-av", "--timeout=120"],
+                         "-e", ssh_cmd,
+                         f"{COMMA_IP}:{COMMA_DATA_DIR}",
+                         RAW_DATA_DIR, "-av", "--timeout=120",
+                         "--partial", "--partial-dir=.rsync-partial"],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
                         text=True,
