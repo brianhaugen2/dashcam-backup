@@ -5,7 +5,7 @@ services:
     container_name: dashcam_backup
     network_mode: host
     volumes:
-      - /media:/media
+      - /tank:/tank
       - /home/brian/.ssh:/root/.ssh
       - /tmp:/tmp
     command: python /app/dashcam_backup/backup_to_hdd.py
